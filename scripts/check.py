@@ -13,7 +13,10 @@ class Page(HTMLParser):
    value=d.get('href',d.get('src'))
    if value:self.refs.append(value)
   if tag=='img':assert d.get('alt'), 'image needs alt'
-pages={p:Page(p.read_text()) for p in root.glob('*.html')}
+static_files={p.name for p in (root.parent/'static').iterdir() if p.is_file()}
+for name in static_files:
+ assert (root/name).read_bytes()==(root.parent/'static'/name).read_bytes(), 'Static verification file changed'
+pages={p:Page(p.read_text()) for p in root.glob('*.html') if p.name not in static_files}
 for p,data in pages.items():
  assert data.h1==1,(p.name,'heading')
  for ref in data.refs:

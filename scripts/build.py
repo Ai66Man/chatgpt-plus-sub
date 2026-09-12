@@ -117,6 +117,9 @@ write('404','页面未找到','返回 AI Plus 首页查找套餐与指南。','<
 f=OUT/'404.html';s=f.read_text();s=s.replace('href="assets/','href="'+BASE+'assets/').replace('src="assets/','src="'+BASE+'assets/');s=s.replace('<head>','<head><base href="'+BASE+'">');s=s.replace('<link rel="canonical" href="'+BASE+'404.html">','');f.write_text(s)
 shutil.copytree(ROOT/'assets',OUT/'assets',dirs_exist_ok=True)
 (OUT/'.nojekyll').touch()
-urls=[BASE]+[BASE+p.name for p in sorted(OUT.glob('*.html')) if p.stem not in NOINDEX|{'index'}]
+# Keep ownership verification files verbatim and outside the content sitemap.
+static_files={p.name for p in (ROOT/'static').iterdir() if p.is_file()}
+shutil.copytree(ROOT/'static',OUT,dirs_exist_ok=True)
+urls=[BASE]+[BASE+p.name for p in sorted(OUT.glob('*.html')) if p.stem not in NOINDEX|{'index'} and p.name not in static_files]
 (OUT/'sitemap.xml').write_text('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+''.join('<url><loc>'+u+'</loc></url>' for u in urls)+'</urlset>')
 print(f'Built {len(urls)} pages + 404')
