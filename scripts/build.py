@@ -48,8 +48,8 @@ REDIRECTS = {
 }
 
 PAGE_META = {
-    "index": ("AI 订阅充值：ChatGPT Plus、Claude Pro、Grok Super 微信支付宝直达",
-              "ChatGPT Plus、Pro 5X / 20X，Claude Pro、Max，Grok Super 的人民币价格与开通入口，无需海外信用卡；另附各档位官方价格对比与选购建议。"),
+    "index": ("ChatGPT、Claude、Grok 订阅开通：没有海外信用卡也能开，微信支付宝付款",
+              "银行卡被拒、没有境外信用卡、虚拟卡付款失败？这里提供 ChatGPT Plus / Pro、Claude Pro / Max、Grok Super 的开通服务：微信支付宝付款，开在你自己的账号上，不需要密码。"),
     "guides": ("AI 订阅横评与对比文章索引：价格、编程、跨品牌选购",
                "本站全部对比文章的索引：AI 订阅价格总表、Claude 与 ChatGPT 对比、编程订阅比价、国内 Coding Plan 横评与购买渠道说明。"),
     "faq": ("AI 订阅常见问题：价格、额度、付款与选购",
@@ -210,7 +210,7 @@ def page(slug, body, schemas, noindex=False):
         '<header><div class="container header-inner">'
         '<a class="brand" href="index.html" aria-label="' + data.SITE_NAME + ' 首页">'
         '<span class="brand-icon">AI<span>＋</span></span>'
-        '<span><strong>' + data.SITE_NAME + "</strong><small>充值 · 价格 · 选购对比</small></span></a>"
+        '<span><strong>' + data.SITE_NAME + "</strong><small>没有海外卡也能开通</small></span></a>"
         '<nav id="navigation" aria-label="主导航">' + nav + "</nav>"
         '<a class="header-cta" href="' + escape(goplus("home", slug, "header")) + '" '
         'rel="sponsored nofollow" target="_blank" data-conversion="consult" data-position="header">微信咨询 ↗</a>'
@@ -220,10 +220,11 @@ def page(slug, body, schemas, noindex=False):
     footer = (
         "</main><footer><div class=\"container footer-grid\">"
         '<div><a class="brand" href="index.html"><span class="brand-icon">AI<span>＋</span></span>'
-        "<span><strong>" + data.SITE_NAME + "</strong><small>微信支付宝直达，开在自己账号。</small></span></a>"
-        "<p>AI 订阅充值入口与跨品牌选购对比。与 OpenAI、Anthropic、xAI、Google 均无隶属关系。<br>"
-        "开通、交付与售后由 GoPlus 负责，本站为其提供商业导流，详见关于本站。</p></div>"
-        '<div><strong>对比</strong><a href="ai-subscription-price-compare.html">价格总表</a>'
+        "<span><strong>" + data.SITE_NAME + "</strong><small>解决付不了款，把订阅开起来。</small></span></a>"
+        "<p>面向国内用户的 AI 订阅开通服务：没有境外信用卡、银行卡被拒时，<br>"
+        "用微信或支付宝把订阅开在你自己的账号上。<br>"
+        "与 OpenAI、Anthropic、xAI、Google 均无隶属关系；下单与交付由 GoPlus 完成。</p></div>"
+        '<div><strong>开通前了解</strong><a href="buying-guide.html">开通方式对比</a>'
         '<a href="claude-vs-chatgpt.html">Claude vs ChatGPT</a>'
         '<a href="coding-plan-compare.html">Coding Plan 对比</a></div>'
         '<div><strong>关于</strong><a href="about.html">关于本站</a>'
@@ -285,14 +286,14 @@ def render_home():
         '<tr><th scope="row"><a href="#p-' + x["slug"] + '">' + escape(x["name"]) + "</a></th>"
         '<td><strong>¥' + x["price"] + "</strong><small>" + x["unit"] + "</small></td>"
         '<td>' + x["official"] + "</td>"
-        '<td>' + ("自助下单" if x["mode"] == "self" else "人工交付") + "</td></tr>"
+        '<td>' + ("小店自助下单" if x["mode"] == "self" else "微信人工交付") + "</td></tr>"
         for x in data.PRODUCTS)
     quick = ('<section class="container price-overview" id="price-list">'
-             '<div class="price-heading"><h2>套餐与价格一览</h2>'
+             '<div class="price-heading"><h2>可开通的套餐与价格</h2>'
              '<a href="#products">查看套餐权益 ↓</a></div>'
              '<div class="price-table-wrap"><table class="price-table"><thead><tr>'
              '<th scope="col">套餐</th><th scope="col">价格</th>'
-             '<th scope="col">官方价 / 额度</th><th scope="col">开通方式</th>'
+             '<th scope="col">官方价 / 额度</th><th scope="col">怎么开</th>'
              "</tr></thead><tbody>" + quick_rows + "</tbody></table></div>"
              '<p class="price-footnote">人民币价格同步自 GoPlus 商品页，核对于 ' + data.CHECKED
              + "，实际成交价以下单页面为准。</p></section>")
@@ -314,54 +315,83 @@ def render_home():
         "<span>阅读对比 →</span></div></a>"
         for a in ARTICLES if a["slug"] in picks)
 
+    pain_cards = '<div class="pain-grid">' + "".join(
+        '<article class="pain"><h3>' + t + "</h3><p>" + d + "</p></article>"
+        for t, d in data.PAIN_POINTS) + "</div>"
+
+    delivery = table(["产品", "开通需要提供", "这是什么", "不需要提供"],
+                     [[b, "<strong>" + f + "</strong>", w, n] for b, f, w, n in data.DELIVERY_INFO])
+
     body = (
         '<section class="hero"><div class="container">'
-        '<div class="hero-badges"><span>国内用户可用</span><span>微信 / 支付宝付款</span>'
-        "<span>无需海外信用卡</span></div>"
-        "<h1><span>ChatGPT · Claude · Grok</span><br>订阅充值，微信支付宝直达</h1>"
-        '<p class="hero-lead">支持 ChatGPT Plus / Pro 5X / 20X、Claude Pro / Max、Grok Super，'
-        "开通在你自己的账号上。</p>"
-        '<p class="hero-sub">不用折腾海外信用卡，基础档小店自助下单，高配档微信人工确认后交付。</p>'
+        '<div class="hero-badges"><span>银行卡被拒也能开</span><span>微信 / 支付宝付款</span>'
+        "<span>开在你自己的账号</span></div>"
+        "<h1><span>ChatGPT · Claude · Grok</span><br>订阅开不了？我们帮你开</h1>"
+        '<p class="hero-lead">没有境外信用卡、卡一直被拒、虚拟卡付到一半失败——这些都不用再折腾。</p>'
+        '<p class="hero-sub">微信或支付宝付款，订阅开在你自己的账号上，不是共享号也不是成品号；'
+        "整个过程不需要提供密码和短信验证码。</p>"
         '<div class="actions">'
         '<a class="button" href="#price-list">查看套餐与价格</a>'
         + cta("wechat", "index", "hero_wechat", "微信咨询", secondary=True)
-        + '<a class="text-button" href="buying-guide.html">购买前指南 →</a>'
+        + '<a class="text-button" href="#delivery">开通需要提供什么？ →</a>'
         "</div>" + trust + "</div></section>"
+
+        '<section class="soft-section"><div class="container section" id="problems">'
+        + heading("PROBLEMS", "你卡在哪一步？",
+                  "下面这些都是国内用户开通 AI 订阅时最常撞上的问题。")
+        + pain_cards
+        + '<p class="price-footnote">以上任意一种情况，都可以直接用微信或支付宝把订阅开起来，'
+          '不用再去办卡、试卡。<a href="#price-list">看看各档位价格 ↓</a></p></div></section>'
 
         + quick +
 
         '<section class="container section" id="products">'
-        + heading("SERVICE", "热门 AI 订阅充值入口",
-                  "先选工具，再选强度档位。基础档可小店自助下单，Pro / Max 高配人工交付。")
+        + heading("SERVICE", "可开通的订阅与档位",
+                  "先选工具，再选强度档位。基础档小店自助下单，Pro / Max 高配档微信人工确认后交付。")
         + '<div class="product-tabs">' + tabs + "</div>"
         + groups + "</section>"
 
-        '<section class="soft-section"><div class="container section">'
-        + heading("WORKFLOW", "开通流程", "先确认，再下单；开通后回自己的账号核对套餐。")
-        + steps + "</div></section>"
+        '<section class="soft-section"><div class="container section" id="delivery">'
+        + heading("SAFETY", "开通需要提供什么",
+                  "不同产品要的东西不一样，但都不需要你的密码。")
+        + delivery
+        + "<p>这一步是整个流程里最该问清楚的地方，所以写在明面上：</p>"
+          "<ul class=\"checks\">"
+          "<li>不需要账号密码，不需要邮箱密码，不需要短信验证码。</li>"
+          "<li>ChatGPT 的 Session 确实具有账号访问能力，属于敏感凭据；开通完成后在设置里退出重新登录即可重置。</li>"
+          "<li>Claude 的 Organization ID、Grok 的 UserID 都只是标识，拿到也无法登录你的账号。</li>"
+          "<li>不要在任何聊天群、公开截图或来路不明的页面里提交这些信息。</li>"
+          "</ul>"
+          '<p class="price-footnote">如果你无法接受提交 Session，可以先看'
+          '<a href="buying-guide.html">开通方式对比</a>里不经过第三方的几条路径。</p></div></section>'
 
         '<section class="container section">'
-        + heading("COMPARE", "购买渠道对比", "和官方直购、个人代充相比，先看清差别再决定。")
-        + compare
-        + '<p class="price-footnote">官方直购总成本最低，前提是你有符合条件的境外付款方式；'
-          '完整渠道说明见<a href="buying-guide.html">购买指南</a>。</p></section>'
+        + heading("WORKFLOW", "开通流程", "先确认，再下单；开通后回自己的账号核对套餐。")
+        + steps + "</section>"
 
         '<section class="soft-section"><div class="container section">'
-        + heading("GUIDES", "选购参考", "不确定选哪一档？先看这几篇对比再下单。")
-        + '<div class="guide-grid">' + guide_cards + "</div>"
-        + '<a class="more-link" href="guides.html">查看全部对比文章 →</a></div></section>'
+        + heading("COMPARE", "自己开还是找人开", "和官方直购、个人代充相比，先看清差别再决定。")
+        + compare
+        + '<p class="price-footnote">能满足官方付款条件的，官方直购总成本最低；'
+          '这里服务的是那条路走不通的情况。完整说明见'
+          '<a href="buying-guide.html">开通方式对比</a>。</p></div></section>'
 
         '<section class="container section faq-section">'
-        + heading("FAQ", "购买前常见问题", "最容易卡住的几个问题，先看完再决定下单还是咨询。")
+        + heading("FAQ", "开通前常见问题", "最容易卡住的几个问题，先看完再决定下单还是咨询。")
         + faq_list(HOME_FAQ)
         + '<a class="more-link" href="faq.html">查看更多常见问题 →</a></section>'
 
+        '<section class="soft-section"><div class="container section">'
+        + heading("GUIDES", "不确定开哪一档？", "这几篇对比可以帮你在下单前把档位定下来。")
+        + '<div class="guide-grid">' + guide_cards + "</div>"
+        + '<a class="more-link" href="guides.html">查看全部对比文章 →</a></div></section>'
+
         '<section class="contact-section"><div class="container contact-inner"><div>'
-        '<span class="eyebrow">LET\u2019S GET STARTED</span><h2>选好了，就让 AI 开始帮忙。</h2>'
+        '<span class="eyebrow">LET\u2019S GET STARTED</span><h2>别再跟支付页较劲了。</h2>'
         "<p>基础档直接前往小店下单；Pro / Max 高配档先微信确认账号状态与套餐。</p>"
-        '<div class="actions">' + shop_link("index", "footer_shop", "前往小店购买")
+        '<div class="actions">' + shop_link("index", "footer_shop", "前往小店开通")
         + cta("wechat", "index", "footer_wechat", "联系微信客服", secondary=True) + "</div>"
-        '<small>下单与咨询将前往 GoPlus 及其小店页面，交付与售后由该服务商负责。</small></div>'
+        '<small>下单与咨询将前往 GoPlus 及其小店页面，开通、交付与售后由该服务商负责。</small></div>'
         '<div class="contact-note"><span class="big-plus">＋</span>'
         "<strong>你的账号，你的工作流。</strong>"
         "<p>ChatGPT · Claude · Grok<br>开在自己的账号上。</p></div></div></section>"
@@ -455,9 +485,12 @@ def render_faq():
 
 STATIC_PAGES = {
     "about": (
-        "<h2>本站做什么</h2><p>本站提供两件事：一是 ChatGPT、Claude、Grok 订阅的"
-        "<strong>国内开通入口与人民币价格</strong>；二是各家订阅的"
-        "<strong>官方价格、额度口径与跨品牌选购对比</strong>，并标注核对日期。</p>"
+        "<h2>本站做什么</h2><p>本站服务一件具体的事：<strong>国内用户付不了款、开不了 AI 订阅</strong>。"
+        "银行卡被拒、没有境外信用卡、虚拟卡失败、扣款后订阅没生效——遇到这些情况时，"
+        "这里提供 ChatGPT、Claude、Grok 订阅的开通入口，用微信或支付宝付款，"
+        "把订阅开在你自己的账号上。</p>"
+        "<p>为了让你在下单前能选对档位，站内另外整理了各家订阅的官方价格、额度口径与跨品牌对比，"
+        "并标注核对日期。这部分是选购参考，不是本站的主要目的。</p>"
         "<h2>谁在交付</h2><p>本站不销售、不开通任何订阅，也不收取任何款项。"
         "页面上的下单与咨询入口会跳转到 GoPlus 及其小店，实际的开通、交付、退款与售后全部由该服务商负责。"
         "遇到订单问题请通过该服务商的客服入口处理，本站无法查询订单。</p>"

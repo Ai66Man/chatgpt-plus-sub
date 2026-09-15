@@ -14,3 +14,8 @@ table caption{caption-side:top;text-align:left;padding-bottom:8px;color:var(--mu
 .card-top .tag.badge{background:#fff4e5;color:#9a5b00;border-color:#f3d9b0}
 .card-top{gap:8px;flex-wrap:wrap}
 @media (max-width:680px){.price-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}.price-table{min-width:560px}}
+.pain-grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));margin-top:32px}
+.pain{padding:20px 22px;background:#fff;border:1px solid var(--border);border-left:3px solid #c2603f;border-radius:var(--radius)}
+.pain h3{margin:0 0 8px;font-size:17px;line-height:1.5}
+.pain p{margin:0;color:var(--muted);font-size:14px;line-height:1.75}
+@media (max-width:680px){.pain{padding:16px 18px}}
