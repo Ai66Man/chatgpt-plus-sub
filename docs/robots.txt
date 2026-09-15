@@ -1,0 +1,5 @@
+# GitHub project deployment: crawlers read https://ai66man.github.io/robots.txt,
+# not this project-path file. Submit the sitemap in Search Console.
+User-agent: *
+Allow: /
+Sitemap: https://ai66man.github.io/chatgpt-plus-sub/sitemap.xml
