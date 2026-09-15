@@ -356,7 +356,7 @@ def render_home():
           '<a href="buying-guide.html">开通方式对比</a>里不经过第三方的几条路径。</p></div></section>'
 
         '<section class="container section">'
-        + heading("WORKFLOW", "开通流程", "先确认，再下单；开通后回自己的账号核对套餐。")
+        + heading("WORKFLOW", "开通流程", "选好档位下单，按订单说明提交信息，开通后回自己的账号核对。")
         + steps + "</section>"
 
         '<section class="soft-section"><div class="container section">'
