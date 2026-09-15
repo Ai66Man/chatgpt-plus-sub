@@ -231,7 +231,7 @@ def page(slug, body, schemas, noindex=False):
         '<a href="privacy.html">隐私说明</a><a href="terms.html">使用说明</a>'
         '<a href="' + data.REPO + '" rel="noopener" target="_blank">GitHub 仓库</a></div></div>'
         '<div class="container footer-bottom"><span>© 2026 ' + data.SITE_NAME + "</span>"
-        "<span>价格核对于 " + data.CHECKED + "，以各家官方定价页为准</span></div></footer></body></html>"
+        "<span>人民币价格同步自 GoPlus 商品页，核对于 " + data.CHECKED + "，成交价以下单页面为准</span></div></footer></body></html>"
     )
     return head + header + body + footer
 
@@ -317,10 +317,6 @@ def render_home():
         "</div>" + trust + "</div></section>"
 
         '<section class="container section" id="products">'
-        + heading("SERVICE", "可开通的订阅与档位",
-                  "先选工具，再选强度档位。基础档小店自助下单，Pro / Max 高配档微信人工确认后交付。")
-        + '<p class="price-footnote">人民币价格同步自 GoPlus 商品页，核对于 ' + data.CHECKED
-        + "，实际成交价以下单页面为准。</p>"
         + '<div class="product-tabs">' + tabs + "</div>"
         + groups + "</section>"
 
