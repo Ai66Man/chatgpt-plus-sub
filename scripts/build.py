@@ -104,9 +104,12 @@ def shop_link(page, position, label, secondary=False):
 def cta(key, page, position, label, secondary=False):
     href = goplus(key, page, position)
     cls = "button secondary" if secondary else "button"
+    # 微信入口标记 data-wechat：脚本接管后弹出二维码；脚本不可用时仍是可点的链接。
+    wechat = ' data-wechat="1"' if key == "wechat" else ""
+    arrow = "" if key == "wechat" else ' <span aria-hidden="true">↗</span>'
     return ('<a class="' + cls + '" href="' + escape(href) + '" rel="sponsored nofollow" '
-            'target="_blank" data-conversion="consult" data-position="' + escape(position) + '">'
-            + escape(label) + ' <span aria-hidden="true">↗</span></a>')
+            'target="_blank" data-conversion="consult" data-position="' + escape(position) + '"'
+            + wechat + ">" + escape(label) + arrow + "</a>")
 
 
 def heading(eyebrow, title, sub, level="h2"):
@@ -180,6 +183,23 @@ def faq_list(items):
         for q, a in items) + "</div>")
 
 
+def wechat_dialog():
+    """QR dialog markup; hidden until the script opens it."""
+    trust = "".join("<span>" + x + "</span>" for x in data.WECHAT_TRUST)
+    return (
+        '<div class="wx-overlay" id="wx-dialog" hidden role="dialog" aria-modal="true" '
+        'aria-labelledby="wx-title"><div class="wx-panel">'
+        '<button type="button" class="wx-close" data-wx-close aria-label="关闭">&#215;</button>'
+        '<p class="eyebrow">微信咨询</p><h2 id="wx-title">扫码添加微信客服</h2>'
+        '<p class="wx-context" id="wx-context" hidden></p>'
+        '<div class="wx-qr"><img src="' + data.WECHAT_QR + '" alt="微信客服二维码" '
+        'width="600" height="606" loading="lazy"></div>'
+        '<p class="wx-id">添加方式：<strong>' + data.WECHAT_LABEL + "</strong></p>"
+        '<div class="wx-trust">' + trust + "</div>"
+        '<p class="wx-hint">手机端可长按识别二维码，电脑端用微信扫一扫添加。</p>'
+        "</div></div>")
+
+
 def page(slug, body, schemas, noindex=False):
     title, desc = PAGE_META.get(slug, ("", ""))
     canonical = BASE + ("" if slug == "index" else slug + ".html")
@@ -213,7 +233,7 @@ def page(slug, body, schemas, noindex=False):
         '<span><strong>' + data.SITE_NAME + "</strong><small>没有海外卡也能开通</small></span></a>"
         '<nav id="navigation" aria-label="主导航">' + nav + "</nav>"
         '<a class="header-cta" href="' + escape(goplus("home", slug, "header")) + '" '
-        'rel="sponsored nofollow" target="_blank" data-conversion="consult" data-position="header">微信咨询 ↗</a>'
+        'rel="sponsored nofollow" target="_blank" data-conversion="consult" data-position="header" data-wechat="1">微信咨询</a>'
         '<button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="展开导航">☰</button>'
         "</div></header><main id=\"main\">"
     )
@@ -231,7 +251,7 @@ def page(slug, body, schemas, noindex=False):
         '<a href="privacy.html">隐私说明</a><a href="terms.html">使用说明</a>'
         '<a href="' + data.REPO + '" rel="noopener" target="_blank">GitHub 仓库</a></div></div>'
         '<div class="container footer-bottom"><span>© 2026 ' + data.SITE_NAME + "</span>"
-        "<span>人民币价格同步自 GoPlus 商品页，核对于 " + data.CHECKED + "，成交价以下单页面为准</span></div></footer></body></html>"
+        "<span>人民币价格同步自 GoPlus 商品页，核对于 " + data.CHECKED + "，成交价以下单页面为准</span></div></footer>" + wechat_dialog() + "</body></html>"
     )
     return head + header + body + footer
 
@@ -253,7 +273,8 @@ def product_card(prod):
         action = cta(prod["goplus"], "index", "card_" + prod["slug"], prod["cta"])
     consult = ('<a href="' + escape(goplus("wechat", "index", "card_consult_" + prod["slug"]))
                + '" rel="sponsored nofollow" target="_blank" data-conversion="consult" '
-                 'data-position="card_consult">微信咨询</a>')
+                 'data-position="card_consult" data-wechat="1" data-context="'
+               + escape(prod["name"]) + '">微信咨询</a>')
     return (
         '<article class="product ' + prod["group"] + '" id="p-' + prod["slug"] + '">'
         '<div class="card-top"><span class="tag">' + prod["eyebrow"] + "</span>" + badge
