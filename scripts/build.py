@@ -282,22 +282,6 @@ def render_home():
                    '<div class="product-grid' + single + '">'
                    + "".join(product_card(x) for x in items) + "</div></div>")
 
-    quick_rows = "".join(
-        '<tr><th scope="row"><a href="#p-' + x["slug"] + '">' + escape(x["name"]) + "</a></th>"
-        '<td><strong>¥' + x["price"] + "</strong><small>" + x["unit"] + "</small></td>"
-        '<td>' + x["official"] + "</td>"
-        '<td>' + ("小店自助下单" if x["mode"] == "self" else "微信人工交付") + "</td></tr>"
-        for x in data.PRODUCTS)
-    quick = ('<section class="container price-overview" id="price-list">'
-             '<div class="price-heading"><h2>可开通的套餐与价格</h2>'
-             '<a href="#products">查看套餐权益 ↓</a></div>'
-             '<div class="price-table-wrap"><table class="price-table"><thead><tr>'
-             '<th scope="col">套餐</th><th scope="col">价格</th>'
-             '<th scope="col">官方价 / 额度</th><th scope="col">怎么开</th>'
-             "</tr></thead><tbody>" + quick_rows + "</tbody></table></div>"
-             '<p class="price-footnote">人民币价格同步自 GoPlus 商品页，核对于 ' + data.CHECKED
-             + "，实际成交价以下单页面为准。</p></section>")
-
     trust = ('<div class="hero-bottom">'
              + "".join("<span><b>" + v + "</b>" + k + "</span>" for v, k in data.TRUST) + "</div>")
 
@@ -315,10 +299,6 @@ def render_home():
         "<span>阅读对比 →</span></div></a>"
         for a in ARTICLES if a["slug"] in picks)
 
-    pain_cards = '<div class="pain-grid">' + "".join(
-        '<article class="pain"><h3>' + t + "</h3><p>" + d + "</p></article>"
-        for t, d in data.PAIN_POINTS) + "</div>"
-
     delivery = table(["产品", "开通需要提供", "这是什么", "不需要提供"],
                      [[b, "<strong>" + f + "</strong>", w, n] for b, f, w, n in data.DELIVERY_INFO])
 
@@ -331,23 +311,16 @@ def render_home():
         '<p class="hero-sub">微信或支付宝付款，订阅开在你自己的账号上，不是共享号也不是成品号；'
         "整个过程不需要提供密码和短信验证码。</p>"
         '<div class="actions">'
-        '<a class="button" href="#price-list">查看套餐与价格</a>'
+        '<a class="button" href="#products">查看可开通的订阅</a>'
         + cta("wechat", "index", "hero_wechat", "微信咨询", secondary=True)
         + '<a class="text-button" href="#delivery">开通需要提供什么？ →</a>'
         "</div>" + trust + "</div></section>"
 
-        '<section class="soft-section"><div class="container section" id="problems">'
-        + heading("PROBLEMS", "你卡在哪一步？",
-                  "下面这些都是国内用户开通 AI 订阅时最常撞上的问题。")
-        + pain_cards
-        + '<p class="price-footnote">以上任意一种情况，都可以直接用微信或支付宝把订阅开起来，'
-          '不用再去办卡、试卡。<a href="#price-list">看看各档位价格 ↓</a></p></div></section>'
-
-        + quick +
-
         '<section class="container section" id="products">'
         + heading("SERVICE", "可开通的订阅与档位",
                   "先选工具，再选强度档位。基础档小店自助下单，Pro / Max 高配档微信人工确认后交付。")
+        + '<p class="price-footnote">人民币价格同步自 GoPlus 商品页，核对于 ' + data.CHECKED
+        + "，实际成交价以下单页面为准。</p>"
         + '<div class="product-tabs">' + tabs + "</div>"
         + groups + "</section>"
 
