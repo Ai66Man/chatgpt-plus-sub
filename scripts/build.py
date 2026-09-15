@@ -21,10 +21,11 @@ from articles import ARTICLES, SITE_FAQ, HOME_FAQ, table  # noqa: E402
 
 BASE = data.BASE
 NAV = [
-    ("价格总表", "ai-subscription-price-compare.html"),
-    ("跨品牌对比", "guides.html"),
-    ("编程订阅", "ai-coding-subscription-price.html"),
-    ("购买渠道", "buying-guide.html"),
+    ("ChatGPT", "index.html#chatgpt"),
+    ("Claude", "index.html#claude"),
+    ("Grok", "index.html#grok"),
+    ("选购对比", "guides.html"),
+    ("购买指南", "buying-guide.html"),
     ("常见问题", "faq.html"),
 ]
 
@@ -47,8 +48,8 @@ REDIRECTS = {
 }
 
 PAGE_META = {
-    "index": ("AI 订阅价格对比 2026：ChatGPT、Claude、Grok、Gemini 全档位比价与选购",
-              "对比 ChatGPT、Claude、Gemini、Grok 全部消费级订阅档位的官方美元价、额度与适合人群，并按写作、编程、学生等用途给出选择建议。"),
+    "index": ("AI 订阅充值：ChatGPT Plus、Claude Pro、Grok Super 微信支付宝直达",
+              "ChatGPT Plus、Pro 5X / 20X，Claude Pro、Max，Grok Super 的人民币价格与开通入口，无需海外信用卡；另附各档位官方价格对比与选购建议。"),
     "guides": ("AI 订阅横评与对比文章索引：价格、编程、跨品牌选购",
                "本站全部对比文章的索引：AI 订阅价格总表、Claude 与 ChatGPT 对比、编程订阅比价、国内 Coding Plan 横评与购买渠道说明。"),
     "faq": ("AI 订阅常见问题：价格、额度、付款与选购",
@@ -77,6 +78,27 @@ def goplus(key, page, position):
         "utm_content": page + "__" + position,
     })
     return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+def shop(page, position):
+    """Self-service shop URL with campaign attribution."""
+    parts = urlsplit(data.SHOP)
+    query = dict(parse_qsl(parts.query))
+    query.update({
+        "utm_source": "github_pages",
+        "utm_medium": "referral",
+        "utm_campaign": "ai66man_compare",
+        "utm_content": page + "__" + position,
+    })
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, urlencode(query), parts.fragment))
+
+
+def shop_link(page, position, label, secondary=False):
+    cls = "button secondary" if secondary else "button"
+    return ('<a class="' + cls + '" href="' + escape(shop(page, position)) + '" '
+            'rel="sponsored nofollow" target="_blank" data-conversion="shop" '
+            'data-position="' + escape(position) + '">' + escape(label)
+            + ' <span aria-hidden="true">↗</span></a>')
 
 
 def cta(key, page, position, label, secondary=False):
@@ -187,20 +209,20 @@ def page(slug, body, schemas, noindex=False):
         '<body data-page="' + slug + '"><a class="skip-link" href="#main">跳到正文</a>'
         '<header><div class="container header-inner">'
         '<a class="brand" href="index.html" aria-label="' + data.SITE_NAME + ' 首页">'
-        '<span class="brand-icon">比<span>价</span></span>'
-        '<span><strong>' + data.SITE_NAME + "</strong><small>官方价格 · 额度 · 选购对比</small></span></a>"
+        '<span class="brand-icon">AI<span>＋</span></span>'
+        '<span><strong>' + data.SITE_NAME + "</strong><small>充值 · 价格 · 选购对比</small></span></a>"
         '<nav id="navigation" aria-label="主导航">' + nav + "</nav>"
         '<a class="header-cta" href="' + escape(goplus("home", slug, "header")) + '" '
-        'rel="sponsored nofollow" target="_blank" data-conversion="consult" data-position="header">国内开通 ↗</a>'
+        'rel="sponsored nofollow" target="_blank" data-conversion="consult" data-position="header">微信咨询 ↗</a>'
         '<button class="menu-toggle" aria-expanded="false" aria-controls="navigation" aria-label="展开导航">☰</button>'
         "</div></header><main id=\"main\">"
     )
     footer = (
         "</main><footer><div class=\"container footer-grid\">"
-        '<div><a class="brand" href="index.html"><span class="brand-icon">比<span>价</span></span>'
-        "<span><strong>" + data.SITE_NAME + "</strong><small>先看价格，再看额度。</small></span></a>"
-        "<p>独立的 AI 订阅比价与横评站，与 OpenAI、Anthropic、xAI、Google 均无隶属关系。<br>"
-        "本站为 GoPlus 提供商业导流，详见关于本站。</p></div>"
+        '<div><a class="brand" href="index.html"><span class="brand-icon">AI<span>＋</span></span>'
+        "<span><strong>" + data.SITE_NAME + "</strong><small>微信支付宝直达，开在自己账号。</small></span></a>"
+        "<p>AI 订阅充值入口与跨品牌选购对比。与 OpenAI、Anthropic、xAI、Google 均无隶属关系。<br>"
+        "开通、交付与售后由 GoPlus 负责，本站为其提供商业导流，详见关于本站。</p></div>"
         '<div><strong>对比</strong><a href="ai-subscription-price-compare.html">价格总表</a>'
         '<a href="claude-vs-chatgpt.html">Claude vs ChatGPT</a>'
         '<a href="coding-plan-compare.html">Coding Plan 对比</a></div>'
@@ -214,67 +236,142 @@ def page(slug, body, schemas, noindex=False):
 
 
 # --------------------------------------------------------------------------- pages
-def render_home():
-    rows = []
-    for brand, tier, price, unit, quota, who, _key in data.PLANS:
-        label = brand + " " + tier
-        cost = "免费" if price == "0" else "$" + price + " " + unit
-        rows.append([escape(label), cost, escape(quota), escape(who)])
-    price_table = table(["档位", "官方美元价", "额度与权益要点", "适合谁"], rows)
+def logo(brand):
+    ext = "png" if brand == "gpt" else "svg"
+    alt = {"gpt": "ChatGPT", "claude": "Claude", "grok": "Grok"}[brand]
+    return ('<img src="assets/' + brand + "." + ext + '" width="30" height="30" alt="'
+            + alt + ' 标志" loading="lazy">')
 
-    cases = "".join(
-        '<a class="guide-card" href="' + slug + '.html"><div class="guide-text">'
-        "<h3>" + name + "</h3><p>" + desc + "</p><span>查看对比 →</span></div></a>"
-        for name, desc, slug in data.USE_CASES)
+
+def product_card(prod):
+    mode_label = "可自助下单" if prod["mode"] == "self" else "人工交付"
+    badge = ('<span class="tag badge">' + prod["badge"] + "</span>") if prod["badge"] else ""
+    if prod["mode"] == "self":
+        action = shop_link("index", "card_" + prod["slug"], prod["cta"])
+    else:
+        action = cta(prod["goplus"], "index", "card_" + prod["slug"], prod["cta"])
+    consult = ('<a href="' + escape(goplus("wechat", "index", "card_consult_" + prod["slug"]))
+               + '" rel="sponsored nofollow" target="_blank" data-conversion="consult" '
+                 'data-position="card_consult">微信咨询</a>')
+    return (
+        '<article class="product ' + prod["group"] + '" id="p-' + prod["slug"] + '">'
+        '<div class="card-top"><span class="tag">' + prod["eyebrow"] + "</span>" + badge
+        + logo(prod["brand"]) + "</div>"
+        "<h3>" + escape(prod["name"]) + "</h3>"
+        '<div class="price"><small>¥</small>' + prod["price"] + "<small>" + prod["unit"] + "</small></div>"
+        '<p class="price-note">' + prod["official"] + " · " + mode_label + "</p>"
+        '<p class="product-desc">' + escape(prod["desc"]) + "</p>"
+        '<div class="audience"><small>适合人群</small>' + escape(prod["audience"]) + "</div>"
+        '<ul class="checks">' + "".join("<li>" + escape(f) + "</li>" for f in prod["features"]) + "</ul>"
+        '<div class="card-actions">' + action + consult + "</div></article>")
+
+
+def render_home():
+    tabs = "".join(
+        '<a href="#' + key + '">' + logo(brand) + label.replace(" 套餐", "")
+        + "<span>" + price + "</span></a>"
+        for key, label, _tag, brand, price in data.PRODUCT_GROUPS)
+
+    groups = ""
+    for key, label, tagline, _brand, _price in data.PRODUCT_GROUPS:
+        items = [x for x in data.PRODUCTS if x["group"] == key]
+        single = " single-product" if len(items) == 1 else ""
+        groups += ('<div class="product-group" id="' + key + '">'
+                   '<div class="group-title"><h2>' + label + "</h2><p>" + tagline + "</p></div>"
+                   '<div class="product-grid' + single + '">'
+                   + "".join(product_card(x) for x in items) + "</div></div>")
+
+    quick_rows = "".join(
+        '<tr><th scope="row"><a href="#p-' + x["slug"] + '">' + escape(x["name"]) + "</a></th>"
+        '<td><strong>¥' + x["price"] + "</strong><small>" + x["unit"] + "</small></td>"
+        '<td>' + x["official"] + "</td>"
+        '<td>' + ("自助下单" if x["mode"] == "self" else "人工交付") + "</td></tr>"
+        for x in data.PRODUCTS)
+    quick = ('<section class="container price-overview" id="price-list">'
+             '<div class="price-heading"><h2>套餐与价格一览</h2>'
+             '<a href="#products">查看套餐权益 ↓</a></div>'
+             '<div class="price-table-wrap"><table class="price-table"><thead><tr>'
+             '<th scope="col">套餐</th><th scope="col">价格</th>'
+             '<th scope="col">官方价 / 额度</th><th scope="col">开通方式</th>'
+             "</tr></thead><tbody>" + quick_rows + "</tbody></table></div>"
+             '<p class="price-footnote">人民币价格同步自 GoPlus 商品页，核对于 ' + data.CHECKED
+             + "，实际成交价以下单页面为准。</p></section>")
+
+    trust = ('<div class="hero-bottom">'
+             + "".join("<span><b>" + v + "</b>" + k + "</span>" for v, k in data.TRUST) + "</div>")
+
+    steps = ('<div class="steps">' + "".join(
+        "<article><span class=\"step-number\">0" + str(i + 1) + "</span><h3>" + n + "</h3><p>" + d + "</p></article>"
+        for i, (n, d) in enumerate(data.STEPS)) + "</div>")
+
+    compare = table(["对比维度", "本站 / GoPlus", "官方直购", "个人代充"],
+                    [[r[0], r[1], r[2], r[3]] for r in data.CHANNEL_COMPARE])
+
+    picks = ["ai-subscription-price-compare", "claude-vs-chatgpt", "claude-code-vs-codex"]
+    guide_cards = "".join(
+        '<a class="guide-card" href="' + a["slug"] + '.html"><div class="guide-text">'
+        "<h3>" + escape(a["title"]) + "</h3><p>" + escape(a["desc"]) + "</p>"
+        "<span>阅读对比 →</span></div></a>"
+        for a in ARTICLES if a["slug"] in picks)
 
     body = (
         '<section class="hero"><div class="container">'
-        '<div class="hero-badges"><span>官方美元标价</span><span>每月核对</span><span>不做单品充值页</span></div>'
-        "<h1>ChatGPT、Claude、Grok、Gemini 订阅怎么选？<br>价格、额度与国内开通对比</h1>"
-        '<p class="hero-lead">一张表看完四家全部消费级档位的官方价格、额度说明和适合人群。</p>'
-        '<p class="hero-sub">本站只列各家官方美元标价并注明核对日期，不维护人民币报价；'
-        "国内开通价格与档位请前往 GoPlus 确认。</p>"
+        '<div class="hero-badges"><span>国内用户可用</span><span>微信 / 支付宝付款</span>'
+        "<span>无需海外信用卡</span></div>"
+        "<h1><span>ChatGPT · Claude · Grok</span><br>订阅充值，微信支付宝直达</h1>"
+        '<p class="hero-lead">支持 ChatGPT Plus / Pro 5X / 20X、Claude Pro / Max、Grok Super，'
+        "开通在你自己的账号上。</p>"
+        '<p class="hero-sub">不用折腾海外信用卡，基础档小店自助下单，高配档微信人工确认后交付。</p>'
         '<div class="actions">'
-        '<a class="button" href="#price-list">查看全档位价格表</a>'
-        '<a class="button secondary" href="claude-vs-chatgpt.html">Claude 和 ChatGPT 怎么选</a>'
-        '<a class="text-button" href="ai-coding-subscription-price.html">编程订阅要花多少 →</a>'
-        "</div></div></section>"
+        '<a class="button" href="#price-list">查看套餐与价格</a>'
+        + cta("wechat", "index", "hero_wechat", "微信咨询", secondary=True)
+        + '<a class="text-button" href="buying-guide.html">购买前指南 →</a>'
+        "</div>" + trust + "</div></section>"
 
-        '<section class="container section" id="price-list">'
-        + heading("PRICING", "2026 年 AI 订阅全档位价格表", "核对于 " + data.CHECKED
-                  + "，为各家官方美元标价，不含当地税费。", level="h2")
-        + price_table
-        + '<p class="price-footnote">完整对比与选购建议见'
-          '<a href="ai-subscription-price-compare.html">价格对比详解</a>。</p></section>'
+        + quick +
+
+        '<section class="container section" id="products">'
+        + heading("SERVICE", "热门 AI 订阅充值入口",
+                  "先选工具，再选强度档位。基础档可小店自助下单，Pro / Max 高配人工交付。")
+        + '<div class="product-tabs">' + tabs + "</div>"
+        + groups + "</section>"
 
         '<section class="soft-section"><div class="container section">'
-        + heading("BY USE CASE", "按用途找对比", "先确定自己要用来做什么，再比价格。")
-        + '<div class="guide-grid">' + cases + "</div></div></section>"
+        + heading("WORKFLOW", "开通流程", "先确认，再下单；开通后回自己的账号核对套餐。")
+        + steps + "</div></section>"
 
         '<section class="container section">'
-        + heading("HOW TO READ", "这张表该怎么看", "三条规律，比记住具体数字更有用。")
-        + "<ol><li><strong>入门档价格高度趋同。</strong>四家的主力个人档都在 20 美元上下，"
-          "差别在功能面和额度口径，不在价格。</li>"
-          "<li><strong>高价档卖的是额度，不是更聪明。</strong>100 和 200 美元档提升的是用量上限，"
-          "官方的倍数说明针对整体用量，个别功能可能有独立限制。</li>"
-          "<li><strong>先用满一个档再升级。</strong>记录每周被额度打断的次数，"
-          "和差价比较后再决定，比凭感觉升级省钱。</li></ol></section>"
+        + heading("COMPARE", "购买渠道对比", "和官方直购、个人代充相比，先看清差别再决定。")
+        + compare
+        + '<p class="price-footnote">官方直购总成本最低，前提是你有符合条件的境外付款方式；'
+          '完整渠道说明见<a href="buying-guide.html">购买指南</a>。</p></section>'
 
-        '<section class="container section">'
-        + heading("FAQ", "下单前最常问的五个问题", "关于价格口径和档位选择，先把这几件事说清楚。")
+        '<section class="soft-section"><div class="container section">'
+        + heading("GUIDES", "选购参考", "不确定选哪一档？先看这几篇对比再下单。")
+        + '<div class="guide-grid">' + guide_cards + "</div>"
+        + '<a class="more-link" href="guides.html">查看全部对比文章 →</a></div></section>'
+
+        '<section class="container section faq-section">'
+        + heading("FAQ", "购买前常见问题", "最容易卡住的几个问题，先看完再决定下单还是咨询。")
         + faq_list(HOME_FAQ)
-        + '<a class="more-link" href="faq.html">查看全部常见问题 →</a></section>'
+        + '<a class="more-link" href="faq.html">查看更多常见问题 →</a></section>'
 
         '<section class="contact-section"><div class="container contact-inner"><div>'
-        '<span class="eyebrow">国内开通</span><h2>选好了档位，再看怎么开通。</h2>'
-        "<p>本站不维护人民币报价。具体档位、当前价格与交付方式，前往 GoPlus 确认后再下单。</p>"
-        '<div class="actions">' + cta("home", "index", "footer_primary", "查看国内开通档位")
-        + cta("chatgpt_plus", "index", "footer_chatgpt", "ChatGPT 开通", secondary=True) + "</div>"
-        '<small>购买与咨询将前往第三方服务商页面，本站与其为商业导流关系。</small></div>'
-        '<div class="contact-note"><span class="big-plus">＝</span><strong>先比价，再下单。</strong>'
-        "<p>官方价格 · 额度口径 · 开通渠道<br>三件事分开看。</p></div></div></section>"
+        '<span class="eyebrow">LET\u2019S GET STARTED</span><h2>选好了，就让 AI 开始帮忙。</h2>'
+        "<p>基础档直接前往小店下单；Pro / Max 高配档先微信确认账号状态与套餐。</p>"
+        '<div class="actions">' + shop_link("index", "footer_shop", "前往小店购买")
+        + cta("wechat", "index", "footer_wechat", "联系微信客服", secondary=True) + "</div>"
+        '<small>下单与咨询将前往 GoPlus 及其小店页面，交付与售后由该服务商负责。</small></div>'
+        '<div class="contact-note"><span class="big-plus">＋</span>'
+        "<strong>你的账号，你的工作流。</strong>"
+        "<p>ChatGPT · Claude · Grok<br>开在自己的账号上。</p></div></div></section>"
     )
     schemas = schema_blocks("index", *PAGE_META["index"])
+    schemas.append({"@context": "https://schema.org", "@type": "ItemList",
+                    "name": "AI 订阅充值套餐", "itemListElement": [
+                        {"@type": "ListItem", "position": i + 1, "name": x["name"],
+                         "url": BASE + "#p-" + x["slug"], "description": x["desc"]}
+                        for i, x in enumerate(data.PRODUCTS)]})
     schemas.append(faq_schema(HOME_FAQ))
     return page("index", body, schemas)
 
@@ -358,15 +455,22 @@ def render_faq():
 
 STATIC_PAGES = {
     "about": (
-        "<h2>本站做什么</h2><p>本站只做一件事：把 ChatGPT、Claude、Gemini、Grok 以及主流 AI 编程工具的"
-        "<strong>官方订阅价格、额度口径和适用场景</strong>整理成可以横向比较的表格，并标注核对日期。</p>"
-        "<h2>不做什么</h2><p>本站不做单品充值页，不维护人民币报价，不提供跨区订阅或绕过地区限制的方法，"
-        "也不提供任何成功率承诺。</p>"
+        "<h2>本站做什么</h2><p>本站提供两件事：一是 ChatGPT、Claude、Grok 订阅的"
+        "<strong>国内开通入口与人民币价格</strong>；二是各家订阅的"
+        "<strong>官方价格、额度口径与跨品牌选购对比</strong>，并标注核对日期。</p>"
+        "<h2>谁在交付</h2><p>本站不销售、不开通任何订阅，也不收取任何款项。"
+        "页面上的下单与咨询入口会跳转到 GoPlus 及其小店，实际的开通、交付、退款与售后全部由该服务商负责。"
+        "遇到订单问题请通过该服务商的客服入口处理，本站无法查询订单。</p>"
+        "<h2>不做什么</h2><p>本站不提供跨区订阅或绕过地区限制的方法，不提供任何成功率或到账时间承诺，"
+        "也不编造订单量、用户评价或成功案例。页面上引用的服务承诺均来自 GoPlus 的公开说明，"
+        "具体条款以下单时页面为准。</p>"
         "<h2>商业关系披露</h2><p>本站为 GoPlus 提供商业导流：页面中的「国内开通」入口会跳转到该第三方服务商，"
         "并带有来源标识参数。本站与 OpenAI、Anthropic、xAI、Google 均无隶属关系，"
         "也不是任何一家的官方网站。第三方的报价、交付与售后由该商家负责。</p>"
-        "<h2>价格怎么核对</h2><p>价格以各家官方定价页为准，每月 1 号核对一次，页面上标注核对日期。"
-        "官方随时可能调整，付款前请以结算页显示为准。发现价格过期或错误，欢迎通过下方渠道指出。</p>"
+        "<h2>价格怎么核对</h2><p>页面上有两套价格。<strong>官方美元标价</strong>以各家官方定价页为准；"
+        "<strong>人民币价格</strong>同步自 GoPlus 商品页，是该服务商的报价，不是官方价格，也不是汇率换算。"
+        "两者每月 1 号核对一次并标注核对日期。价格随时可能调整，实际成交价以下单页面为准；"
+        "发现价格过期或错误，欢迎通过下方渠道指出。</p>"
         "<h2>纠错渠道</h2><p>内容问题可在 "
         '<a href="' + data.REPO + '/issues" rel="noopener" target="_blank">GitHub 仓库 Issues</a> '
         "反馈，请附页面地址和需要修正的表述。请不要提交订单、账号或支付资料。</p>"),
@@ -385,8 +489,9 @@ STATIC_PAGES = {
         "各家产品的功能、价格、额度与可用地区以官方最新说明为准。</p>"
         "<h2>价格时效</h2><p>页面标注的核对日期表示最近一次核对时间。官方定价随时可能调整，"
         "本站不承诺表中价格与当前官方价格完全一致。</p>"
-        "<h2>第三方交易</h2><p>本站不销售任何订阅。通过本站进入第三方服务商后，"
-        "交易、交付与售后均由该商家负责，与本站无关。</p>"
+        "<h2>第三方交易</h2><p>本站不销售任何订阅，也不收款。页面上的人民币价格是 GoPlus 的报价，"
+        "并非官方定价。通过本站进入该服务商后，交易、交付、退款与售后均由其负责，与本站无关。"
+        "本站展示的服务承诺（如质保范围）引自其公开说明，不构成本站的承诺。</p>"
         "<h2>商标与隶属关系</h2><p>ChatGPT、Claude、Gemini、Grok 等名称归各自权利人所有。"
         "本站与 OpenAI、Anthropic、Google、xAI 均无隶属、合作或授权关系。</p>"),
 }
