@@ -33,7 +33,7 @@ class Page(HTMLParser):
                 self.refs.append(value)
         if tag == "img":
             assert d.get("alt"), "image needs alt"
-        if tag == "a" and "goplus.pro" in (d.get("href") or ""):
+        if tag == "a" and urlsplit(d.get("href") or "").netloc in ("www.goplus.pro", "qfcc99.com"):
             self.outbound.append(d)
 
 

@@ -9,21 +9,21 @@ CHECKED = "2026-09-15"
 REPO = "https://github.com/Ai66Man/chatgpt-plus-sub"
 
 # GoPlus destinations. Every outbound link gets UTM parameters at render time.
-SHOP = "https://fe.dtyuedan.cn/shop/panghu"  # 小店自助下单入口
+SHOP = "https://qfcc99.com/shop/panghu"  # 小店自助下单入口
 WECHAT = "https://www.goplus.pro/#wechat"    # 人工咨询入口（弹窗被禁用时的兜底链接）
 WECHAT_QR = "assets/wechat-qr.webp"          # 客服二维码，点「微信咨询」时弹出
 WECHAT_LABEL = "扫码添加客服"                  # 没有公开微信号时展示的添加方式
 WECHAT_TRUST = ["不索要密码", "开在自己账号", "售后可沟通"]
 
 GOPLUS = {
-    "home": "https://www.goplus.pro/",
+    "home": SHOP,
     "wechat": "https://www.goplus.pro/#wechat",
-    "chatgpt_plus": "https://www.goplus.pro/chatgpt-plus-recharge",
-    "chatgpt_pro": "https://www.goplus.pro/chatgpt-pro-recharge",
-    "claude": "https://www.goplus.pro/claude",
-    "claude_max_5x": "https://www.goplus.pro/claude-max-5x-recharge",
-    "claude_max_20x": "https://www.goplus.pro/claude-max-20x-recharge",
-    "grok": "https://www.goplus.pro/grok",
+    "chatgpt_plus": SHOP,
+    "chatgpt_pro": SHOP,
+    "claude": SHOP,
+    "claude_max_5x": SHOP,
+    "claude_max_20x": SHOP,
+    "grok": SHOP,
     "chatgpt_choose": "https://www.goplus.pro/articles/chatgpt-plus-vs-pro-how-to-choose",
     "claude_choose": "https://www.goplus.pro/articles/claude-pro-vs-max-how-to-choose",
     "payment_declined": "https://www.goplus.pro/articles/chatgpt-payment-card-declined",
