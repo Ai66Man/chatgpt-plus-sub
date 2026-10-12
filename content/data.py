@@ -2,22 +2,19 @@
 """Site-wide data for the comparison site. Prices are official list prices in USD
 unless stated otherwise; CNY retail prices are intentionally not maintained here."""
 
-SITE_NAME = "AI 订阅开通服务"
+SITE_NAME = "AI 订阅比价指南"
 BASE = "https://ai66man.github.io/chatgpt-plus-sub/"
 GA_ID = "G-76M2YEVGPJ"
-CHECKED = "2026-09-15"
+CHECKED = "2026-09-15"  # 官方美元价最近核对日
+TODAY = "2026-10-13"   # 本轮站点结构与文案修改日
 REPO = "https://github.com/Ai66Man/chatgpt-plus-sub"
 
-# GoPlus destinations. Every outbound link gets UTM parameters at render time.
+# 导流目标。所有外链在渲染时追加 UTM。每篇文章最多两处小店入口 + 来源区一条 GoPlus 链接。
 SHOP = "https://qfcc99.com/shop/panghu"  # 小店自助下单入口
-WECHAT = "https://www.goplus.pro/#wechat"    # 人工咨询入口（弹窗被禁用时的兜底链接）
-WECHAT_QR = "assets/wechat-qr.webp"          # 客服二维码，点「微信咨询」时弹出
-WECHAT_LABEL = "扫码添加客服"                  # 没有公开微信号时展示的添加方式
-WECHAT_TRUST = ["不索要密码", "开在自己账号", "售后可沟通"]
+MERCHANT = "https://www.goplus.pro/"     # 服务商站点（来源区引用）
 
 GOPLUS = {
-    "home": SHOP,
-    "wechat": "https://www.goplus.pro/#wechat",
+    "home": MERCHANT,
     "chatgpt_plus": SHOP,
     "chatgpt_pro": SHOP,
     "claude": SHOP,
@@ -42,7 +39,7 @@ SOURCES = {
     "cursor": ("Cursor：定价页", "https://cursor.com/pricing"),
     "copilot": ("GitHub：Copilot 定价", "https://github.com/features/copilot/plans"),
     "zhipu": ("智谱：GLM Coding Plan", "https://bigmodel.cn/"),
-    "merchant": ("GoPlus：国内开通与报价", "https://www.goplus.pro/"),
+    "merchant": ("GoPlus：国内开通档位与人民币报价", "https://www.goplus.pro/"),
 }
 
 # 全档位对比。price 为官方美元标价，注明计费单位；国内开通价不在本站维护。
@@ -97,109 +94,21 @@ USE_CASES = [
 ]
 
 
-# --------------------------------------------------------------------- 商品
-# 人民币报价同步自 GoPlus 商品页（核对日见 CHECKED）。self 档走小店自助下单，
-# manual 档需要人工确认账号状态后交付，入口指向 GoPlus 对应产品页。
-PRODUCTS = [
-    dict(slug="chatgpt-plus", group="chatgpt", brand="gpt", name="ChatGPT Plus",
-         eyebrow="多数用户首选", badge="推荐", price="165", unit="元起",
-         official="官方 Plus $20/月", mode="self", cta="前往小店下单",
-         desc="适合日常写作、学习、办公和轻量编程，支持高级模型、文件分析、联网搜索和 Codex。",
-         audience="普通用户、内容创作者、学生、轻量开发者",
-         features=["支持最新模型、文件分析与联网搜索",
-                   "可使用 Codex、Projects 与自定义 GPTs",
-                   "无需海外信用卡，不需要提供账号密码",
-                   "小店自助下单，也可先微信咨询"]),
-    dict(slug="chatgpt-pro-5x", group="chatgpt", brand="gpt", name="ChatGPT Pro 5X",
-         eyebrow="中重度使用", badge="", price="850", unit="/月",
-         official="约 5 倍 Plus 额度", mode="manual", cta="查看档位详情", goplus="chatgpt_pro",
-         desc="适合阶段性项目和中重度使用，包含 Plus 权益，支持 Pro 模型、Codex 与深度研究额度。",
-         audience="开发者、研究生、数据分析师等中度使用者",
-         features=["比 Plus 更高的模型与使用额度",
-                   "适合中高强度使用 Codex 工作与研究",
-                   "需先确认账号状态与套餐",
-                   "由人工跟进开通过程与异常处理"]),
-    dict(slug="chatgpt-pro-20x", group="chatgpt", brand="gpt", name="ChatGPT Pro 20X",
-         eyebrow="高强度生产力", badge="顶配", price="1500", unit="/月",
-         official="约 20 倍 Plus 额度", mode="manual", cta="查看档位详情", goplus="chatgpt_pro",
-         desc="适合高频生产力和团队任务，提供更高的 Pro、Codex 与深度研究额度。",
-         audience="高频开发、科研、数据分析与商业内容团队",
-         features=["更高优先级与更大使用额度",
-                   "适合长时间 Codex、多任务研究与复杂文档",
-                   "需人工确认后再开通",
-                   "售后由人工跟进，异常可快速处理"]),
-    dict(slug="claude-pro", group="claude", brand="claude", name="Claude Pro",
-         eyebrow="长文档与写作", badge="", price="185", unit="/月",
-         official="官方 Pro $20/月", mode="self", cta="前往小店下单",
-         desc="适合研究、写代码、资料整理与知识工作，支持 Claude Code。",
-         audience="内容创作者、研究人员、产品经理、技术团队",
-         features=["支持 Claude Code、Projects 与最新模型",
-                   "适合编码、内容创作、分析与自动化",
-                   "小店自助下单，也可先微信确认",
-                   "到账与售后通过微信沟通处理"]),
-    dict(slug="claude-max-5x", group="claude", brand="claude", name="Claude Max 5X",
-         eyebrow="重度 Claude Code", badge="", price="900", unit="/月",
-         official="约 5 倍 Pro 用量", mode="manual", cta="查看档位详情", goplus="claude_max_5x",
-         desc="适合 Pro 额度经常不够、每天长时间使用 Claude Code 的开发者，用量与输出上限更高。",
-         audience="重度 Claude Code 用户、开发者、高频写作与研究",
-         features=["约为 Claude Pro 5 倍的使用量",
-                   "适合每天长时间使用 Claude Code",
-                   "需先确认账号状态与套餐",
-                   "由人工跟进开通过程与异常处理"]),
-    dict(slug="claude-max-20x", group="claude", brand="claude", name="Claude Max 20X",
-         eyebrow="极限用量", badge="", price="1700", unit="/月",
-         official="约 20 倍 Pro 用量", mode="manual", cta="查看档位详情", goplus="claude_max_20x",
-         desc="面向全天候高强度使用 Claude Code、多任务并行的用户，提供最高档位的用量与输出上限。",
-         audience="全天候 Claude Code、科研、团队与商业生产力场景",
-         features=["约为 Claude Pro 20 倍的使用量",
-                   "适合全天候 Claude Code 与多任务并行",
-                   "需人工确认后再开通",
-                   "售后由人工跟进，异常可快速处理"]),
-    dict(slug="grok-super", group="grok", brand="grok", name="Grok Super",
-         eyebrow="热点追踪", badge="现货", price="230", unit="/月",
-         official="官方 $30/月", mode="self", cta="前往小店下单",
-         desc="更快回复、更长对话与更多用量，支持 Grok Build、文件上传与 720p 视频。",
-         audience="X 用户、信息研究者、AI 工具重度用户",
-         features=["支持 Grok Build、文件上传与 720p 视频",
-                   "适合实时信息、热点事件与海外内容检索",
-                   "当前现货可购，支持小店自助下单",
-                   "下单后按页面引导提交 UserID 完成开通"]),
-]
+# 各页面最近实质修改日期（sitemap lastmod / schema dateModified）。文章自带 updated 字段。
+PAGE_DATES = {
+    "index": TODAY,
+    "guides": TODAY,
+    "faq": TODAY,
+    "about": TODAY,
+    "privacy": "2026-09-15",
+    "terms": "2026-09-15",
+}
 
-PRODUCT_GROUPS = [
-    ("chatgpt", "ChatGPT 套餐", "日常写作办公选 Plus，重度 Codex 与研究上 Pro。", "gpt", "¥165 起"),
-    ("claude", "Claude 套餐", "长文档、细致写作与 Claude Code 工作流。", "claude", "¥185 起"),
-    ("grok", "Grok 套餐", "关注实时话题、海外信息与 X 生态内容。", "grok", "¥230/月"),
-]
-
-TRUST = [("无需海外卡", "微信 / 支付宝直接付"), ("开在自己账号", "不是共享号、不是成品号"), ("不要密码", "按产品提交指定信息即可")]
-
-STEPS = [
-    ("选好产品与档位", "按使用强度选档，先确认当前账号与已有订阅状态。"),
-    ("自助下单或微信咨询", "基础档前往小店直接下单；Pro / Max 高配档先微信对接。"),
-    ("付款后按引导提交信息", "按订单说明提交对应产品所需的信息，保存订单号与沟通记录。"),
-    ("检查到账与有效期", "在官方产品中确认订阅状态与到期时间，有问题联系客服。"),
-]
-
-CHANNEL_COMPARE = [
-    ("购买入口", "小店自助下单 / 微信人工", "官方网站或官方 App", "个人卖家、聊天群"),
-    ("付款方式", "微信、支付宝", "境外银行卡等官方支持方式", "微信、支付宝"),
-    ("账号归属", "开在你自己的账号上", "你自己的账号", "常见成品号或共享号"),
-    ("需要提供什么", "按产品不同：Session / Organization ID / UserID，不要密码", "无", "可能要密码"),
-    ("售后", "有固定客服入口与订单记录", "官方支持渠道", "多为个人，难追溯"),
-    ("适合谁", "没有境外卡、不想折腾的国内用户", "有境外卡且符合地区条件", "只图便宜、能承担风险"),
-]
-
-
-# 各产品开通时需要提供什么——这是服务边界，也是安全边界。
-DELIVERY_INFO = [
-    ("ChatGPT", "Session",
-     "在已登录状态下获取。它具有账号访问能力，开通完成后退出重新登录即可重置。",
-     "不需要密码、不需要短信验证码"),
-    ("Claude", "Organization ID",
-     "在 Settings → Account 里可以查到，本身不能用于登录你的账号。",
-     "不需要登录你的账号，避免触发风控"),
-    ("Grok", "UserID",
-     "账号标识，不是登录凭据，可在账号会话信息里查到。",
-     "不需要密码，只要一个 ID"),
+# 首页「按用途推荐」：(用途, 两三句结论, 对应对比文章 slug)
+HOME_USE_CASES = [
+    ("写作与长文档", "改稿、润色、风格统一这类任务，Claude Pro 的指令服从度更稳；要一次成稿并配图，ChatGPT Plus 更快。两家都是 $20 档，先按主要任务选。", "claude-vs-chatgpt"),
+    ("编程开发", "个人开发者多从 Claude Pro 起步，已订 ChatGPT Plus 的可以先把 Codex 用满。$20 档撞上限是常态，升 $100 档前先记录两周被打断的次数。", "claude-code-vs-codex"),
+    ("学生与学习", "资料整理、解题讲解、语言学习，免费档加一个 $20 档就够。先看全档位表里的免费档边界，再决定要不要付费。", "ai-subscription-price-compare"),
+    ("图片与视频", "四家里只有 ChatGPT、Grok、Gemini 提供图像生成，Claude 不提供。需要图像或视频生成时直接排除 Claude，再比额度。", "ai-subscription-price-compare"),
+    ("办公与预算优先", "已在付 Google One 的人选 Google AI Pro 最顺手；预算有限先看 ChatGPT Go、Google AI Plus 和国内 Coding Plan。", "coding-plan-compare"),
 ]

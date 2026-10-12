@@ -139,6 +139,27 @@ for p, text in content.items():
 if thin:
     print("WARN thin pages:", thin, file=sys.stderr)
 
+# outbound density: home <= 3, articles <= 2 shop links and >= 1 goplus.pro link
+h1_texts = set()
+all_lastmod = set()
+for p, text in content.items():
+    if p.stem == "404":
+        continue
+    h1 = re.search(r"<h1[^>]*>(.*?)</h1>", text, re.S).group(1)
+    assert h1 not in h1_texts, (p.name, "duplicate h1")
+    h1_texts.add(h1)
+    shop_n = sum(1 for a in pages[p].outbound if "qfcc99.com" in a["href"])
+    gp_n = sum(1 for a in pages[p].outbound if "goplus.pro" in a["href"])
+    if p.stem == "index":
+        assert shop_n + gp_n <= 3, (p.name, "homepage outbound > 3", shop_n, gp_n)
+    elif p.stem in {a.stem for a in content if re.search(r'"@type": "Article"', content[a])}:
+        assert shop_n <= 2, (p.name, "article shop links > 2", shop_n)
+        assert gp_n >= 1, (p.name, "article needs one goplus.pro source link")
+for u in ET.parse(DOCS / "sitemap.xml").findall(".//{*}url"):
+    all_lastmod.add(u.find("{*}lastmod").text)
+assert len(all_lastmod) > 1, "all sitemap lastmod identical"
+assert "wechat-qr" not in "".join(content.values()), "QR dialog still present"
+
 print("PASS: " + str(len(content)) + " content pages, " + str(len(redirects))
       + " redirects, " + str(len(indexed)) + " indexable URLs; links, anchors, metadata, "
       "JSON-LD, GA4, outbound attribution, sitemap and cross-site rules.")
